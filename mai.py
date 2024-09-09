@@ -59,14 +59,19 @@ async def handle_query(client, query):
         await query.message.reply("Send `/schedulegroup now:[number][unit]` (e.g., now:8hour) to schedule messages to all groups.")
     elif data == "schedule_channels":
         await query.message.reply("Send `/schedulechannel now:[number][unit]` (e.g., now:8hour) to schedule messages to all channels.")
-    if data == "total_count":
-        if isinstance(data, dict):
-            total_users = len(data["users"])
-            total_groups = len(data["groups"])
-            total_channels = len(data["channels"])
-            await query.message.reply(f"Total Users: {total_users}, Total Groups: {total_groups}, Total Channels: {total_channels}")
-        else:
-            await query.message.reply("Data format is incorrect.")
+    elif data == "total_count":
+        await send_total_count_message(client, query.message)
+
+async def send_total_count_message(client, message):
+    data = load_data()
+
+    if isinstance(data, dict):
+        total_users = len(data.get("users", []))
+        total_groups = len(data.get("groups", []))
+        total_channels = len(data.get("channels", []))
+        await message.reply(f"Total Users: {total_users}, Total Groups: {total_groups}, Total Channels: {total_channels}")
+    else:
+        await message.reply("Data format is incorrect.")
 
 @app.on_message(filters.command("broadcast") & filters.user(data["users"]))
 async def broadcast(client, message: Message):
