@@ -182,16 +182,15 @@ async def add_user(client, message: Message):
     else:
         await message.reply("User already exists.")
 
- @app.on_message(filters.command("deluser") & filters.user(data["users"]))
+@app.on_message(filters.command("deluser") & filters.user(data["users"]))
+async def delete_user(client, message: Message):
+    user_id = int(message.text.split(" ")[1])
+    if user_id in data["users"]:
+        data["users"].remove(user_id)
+        save_data(data)
+        await message.reply(f"User {user_id} deleted.")
+    else:
+        await message.reply("User not found.")
 
- async def delete_user(client, message: Message):
-     user_id = int(message.text.split(" ")[1])
-     if user_id in data["users"]:
-         data["users"].remove(user_id)
-         save_data(data)
-         await message.reply(f"User {user_id} deleted.")
-     otherwise:
-         await message.reply("User not found.")
-   
 if __name__ == "__main__":
     app.run()
