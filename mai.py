@@ -6,9 +6,9 @@ import json
 import os
 import re
 
-API_ID = "10115546"
-API_HASH = "366347107f54aabc951cfa9d3c2fb2ce"
-BOT_TOKEN = "7483230333:AAEMe6N4lvwad-As6EW9soCr7PsggI-Zzs4"
+API_ID = os.getenv("API_ID")
+API_HASH = os.getenv("API_HASH")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
