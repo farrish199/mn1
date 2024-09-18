@@ -14,7 +14,9 @@ user_states = {}
 
 def get_start_keyboard() -> ReplyKeyboardMarkup:
     """Sediakan papan kekunci untuk arahan /start."""
-    keyboard = [[KeyboardButton("Bug Vless")]]
+    keyboard = [
+        [KeyboardButton("Bug Vless")]
+    ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def get_bugvless_keyboard() -> ReplyKeyboardMarkup:
@@ -29,7 +31,9 @@ def get_bugvless_keyboard() -> ReplyKeyboardMarkup:
 
 def get_cancel_keyboard() -> ReplyKeyboardMarkup:
     """Sediakan papan kekunci untuk membatalkan permintaan."""
-    keyboard = [[KeyboardButton("Cancel")]]
+    keyboard = [
+        [KeyboardButton("Cancel")]
+    ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 @app.on_message(filters.command("start"))
@@ -70,13 +74,25 @@ def handle_vless_url(client, message):
     if message.chat.id in user_states and user_states[message.chat.id]['state'] == 'awaiting_vless_url':
         selected_format = user_states[message.chat.id].get('format')
         if selected_format:
+            # Process the URL with the selected format
             user_text = message.text
-            uuid, subdo, name, patch = extract_info_from_text(user_text)
-            if uuid and subdo and name and patch:
-                reply = generate_vless_url(selected_format, uuid, subdo, name, patch)
+            uuid, subdo, path, name = extract_info_from_text(user_text)
+            if uuid and subdo and path and name:
+                conversion_options = {
+                    "Digi BS": f"vless://{uuid}@162.159.134.61:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                    "Digi XL": f"vless://{uuid}@app.optimizely.com:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                    "UmoFunz XL": f"vless://{uuid}@{subdo}:80?path=/vless{path}&encryption=none&type=ws&host=m.pubgmobile.com#{name}",
+                    "Maxis UL": f"vless://{uuid}@speedtest.net:443?path=/vless{path}&encryption=none&type=ws&host=fast.{subdo}&sni=speedtest.net#{name}",
+                    "Unifi XL": f"vless://{uuid}@104.17.10.12:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                    "Yes XL": f"vless://{uuid}@104.17.113.188:80?path=/vless{path}&encryption=none&type=ws&host=tap-database.who.int.{subdo}#{name}",
+                    "Celcom XL": f"vless://{uuid}@104.17.148.22:80?path=/vless{path}&encryption=none&type=ws&host=opensignal.com.{subdo}#{name}",
+                    "Booster 1": f"vless://{uuid}@104.17.147.22:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                    "Booster 2": f"vless://{uuid}@www.speedtest.net:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}"
+                }
+                reply = conversion_options.get(selected_format, "Invalid option selected.")
                 message.reply(reply)
             else:
-                message.reply("Format URL tidak sah. Sila hantarkan URL vless yang sah.")
+                message.reply("Invalid URL format. Please send a valid vless URL.")
             
             # Reset user state
             user_states[message.chat.id] = {'state': None, 'format': None}
@@ -92,32 +108,16 @@ def handle_cancel(client, message):
         )
 
 def extract_info_from_text(user_text: str) -> tuple:
-    """Extract UUID, subdomain, name, and patch from a full vless URL."""
-    pattern = r"vless://([^@]+)@([^:]+):(\d+)\?path=/vlessws&encryption=none&type=ws#(.+)"
+    """Extract UUID, subdomain, path and name from a full vless URL."""
+    pattern = r"vless://([^@]+)@([^:]+):(\d+)\?path=/vless(.+)&encryption=none&type=ws#(.+)"
     match = re.match(pattern, user_text)
     if match:
         uuid = match.group(1)
         subdo = match.group(2)
-        name = match.group(4)
-        # Anggap {patch} adalah bahagian yang perlu diambil dari URL
-        patch = user_text.split("?")[0].split("/")[-1]  # Mengambil bahagian patch dari URL
-        return uuid, subdo, name, patch
-    return None, None, None, None
-
-def generate_vless_url(selected_format: str, uuid: str, subdo: str, name: str, patch: str) -> str:
-    """Generate the Vless URL based on the selected format."""
-    conversion_options = {
-        "Digi BS": f"vless://{uuid}@162.159.134.61:80?path=/vless{patch}&encryption=none&type=ws&host={subdo}#{name}",
-        "Digi XL": f"vless://{uuid}@app.optimizely.com:80?path=/vless{patch}&encryption=none&type=ws&host={subdo}#{name}",
-        "UmoFunz XL": f"vless://{uuid}@{subdo}:80?path=/vless{patch}&encryption=none&type=ws&host=m.pubgmobile.com#{name}",
-        "Maxis UL": f"vless://{uuid}@speedtest.net:443?path=/vless{patch}&encryption=none&type=ws&host=fast.{subdo}&sni=speedtest.net#{name}",
-        "Unifi XL": f"vless://{uuid}@104.17.10.12:80?path=/vless{patch}&encryption=none&type=ws&host={subdo}#{name}",
-        "Yes XL": f"vless://{uuid}@104.17.113.188:80?path=/vless{patch}&encryption=none&type=ws&host=tap-database.who.int.{subdo}#{name}",
-        "Celcom XL": f"vless://{uuid}@104.17.148.22:80?path=/vless{patch}&encryption=none&type=ws&host=opensignal.com.{subdo}#{name}",
-        "Booster 1": f"vless://{uuid}@104.17.147.22:80?path=/vless{patch}&encryption=none&type=ws&host={subdo}#{name}",
-        "Booster 2": f"vless://{uuid}@www.speedtest.net:80?path=/vless{patch}&encryption=none&type=ws&host={subdo}#{name}"
-    }
-    return conversion_options.get(selected_format, "Pilihan tidak sah.")
+        path = match.group(4)
+        name = match.group(5)
+        return uuid, subdo, path, name
+    return None, None, None
 
 # Mulakan bot
 app.run()
