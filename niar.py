@@ -74,10 +74,13 @@ def handle_vless_url(client, message):
     if message.chat.id in user_states and user_states[message.chat.id]['state'] == 'awaiting_vless_url':
         selected_format = user_states[message.chat.id].get('format')
         if selected_format:
-            # Process the URL with the selected format
             user_text = message.text
             uuid, subdo, path, name = extract_info_from_text(user_text)
-            if uuid and subdo and path and name:
+
+            if path is None:
+            path = ""
+            
+            if uuid and subdo and name:
                 conversion_options = {
                     "Digi BS": f"vless://{uuid}@162.159.134.61:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
                     "Digi XL": f"vless://{uuid}@app.optimizely.com:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
