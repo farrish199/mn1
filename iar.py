@@ -73,32 +73,31 @@ def handle_vless_url(client, message):
     """Handle the Vless URL sent by the user."""
     if message.chat.id in user_states and user_states[message.chat.id]['state'] == 'awaiting_vless_url':
         selected_format = user_states[message.chat.id].get('format')
-        if selected_format:
-            user_text = message.text
-            uuid, subdo, path, name = extract_info_from_text(user_text)
+        user_text = message.text
+        uuid, subdo, path, name = extract_info_from_text(user_text)
 
-            if path is None:
+        if path is None:
             path = ""
             
-            if uuid and subdo and name:
-                conversion_options = {
-                    "Digi BS": f"vless://{uuid}@162.159.134.61:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
-                    "Digi XL": f"vless://{uuid}@app.optimizely.com:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
-                    "UmoFunz XL": f"vless://{uuid}@{subdo}:80?path=/vless{path}&encryption=none&type=ws&host=m.pubgmobile.com#{name}",
-                    "Maxis UL": f"vless://{uuid}@speedtest.net:443?path=/vless{path}&encryption=none&type=ws&host=fast.{subdo}&sni=speedtest.net#{name}",
-                    "Unifi XL": f"vless://{uuid}@104.17.10.12:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
-                    "Yes XL": f"vless://{uuid}@104.17.113.188:80?path=/vless{path}&encryption=none&type=ws&host=tap-database.who.int.{subdo}#{name}",
-                    "Celcom XL": f"vless://{uuid}@104.17.148.22:80?path=/vless{path}&encryption=none&type=ws&host=opensignal.com.{subdo}#{name}",
-                    "Booster 1": f"vless://{uuid}@104.17.147.22:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
-                    "Booster 2": f"vless://{uuid}@www.speedtest.net:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}"
-                }
-                reply = conversion_options.get(selected_format, "Invalid option selected.")
-                message.reply(reply)
-            else:
-                message.reply("Invalid URL format. Please send a valid vless URL.")
+        if uuid and subdo and name:
+            conversion_options = {
+                "Digi BS": f"vless://{uuid}@162.159.134.61:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                "Digi XL": f"vless://{uuid}@app.optimizely.com:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                "UmoFunz XL": f"vless://{uuid}@{subdo}:80?path=/vless{path}&encryption=none&type=ws&host=m.pubgmobile.com#{name}",
+                "Maxis UL": f"vless://{uuid}@speedtest.net:443?path=/vless{path}&encryption=none&type=ws&host=fast.{subdo}&sni=speedtest.net#{name}",
+                "Unifi XL": f"vless://{uuid}@104.17.10.12:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                "Yes XL": f"vless://{uuid}@104.17.113.188:80?path=/vless{path}&encryption=none&type=ws&host=tap-database.who.int.{subdo}#{name}",
+                "Celcom XL": f"vless://{uuid}@104.17.148.22:80?path=/vless{path}&encryption=none&type=ws&host=opensignal.com.{subdo}#{name}",
+                "Booster 1": f"vless://{uuid}@104.17.147.22:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}",
+                "Booster 2": f"vless://{uuid}@www.speedtest.net:80?path=/vless{path}&encryption=none&type=ws&host={subdo}#{name}"
+            }
+            reply = conversion_options.get(selected_format, "Invalid option selected.")
+            message.reply(reply)
+        else:
+            message.reply("Invalid URL format. Please send a valid vless URL.")
             
             # Reset user state
-            user_states[message.chat.id] = {'state': None, 'format': None}
+        user_states[message.chat.id] = {'state': None, 'format': None}
 
 @app.on_message(filters.text & filters.regex("^Cancel$"))
 def handle_cancel(client, message):
