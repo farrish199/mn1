@@ -109,15 +109,15 @@ def handle_cancel(client, message):
 
 def extract_info_from_text(user_text: str) -> tuple:
     """Extract UUID, subdomain, path and name from a full vless URL."""
-    pattern = r"vless://([^@]+)@([^:]+):(\d+)\?path=/vless(.+)&encryption=none&type=ws#(.+)"
+    pattern = r"vless://([^@]+)@([^:]+):(\d+)\?path=/vless([^&]*)&encryption=none&type=ws#(.+)"
     match = re.match(pattern, user_text)
     if match:
         uuid = match.group(1)
         subdo = match.group(2)
-        path = match.group(4)
+        path = match.group(4) if match.group(4) else None
         name = match.group(5)
         return uuid, subdo, path, name
-    return None, None, None
+    return None, None, None, None
 
 # Mulakan bot
 app.run()
